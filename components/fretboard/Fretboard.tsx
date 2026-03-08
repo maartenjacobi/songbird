@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { getScale, getFretboardNotes, getScaleTypes } from "@/lib/music-theory";
+import { getScale, getFretboardNotes, getChordInfo, getScaleTypes } from "@/lib/music-theory";
 import { useFretboardContext } from "@/contexts/FretboardContext";
 import { useSongContext } from "@/contexts/SongContext";
+import { Note } from "tonal";
 import type { FretNote, ScaleType } from "@/types/music";
 
 const NUM_FRETS = 12;
@@ -22,21 +23,51 @@ const TOTAL_WIDTH = PADDING_LEFT + FRET_WIDTH * NUM_FRETS + PADDING_RIGHT;
 const TOTAL_HEIGHT = PADDING_TOP + STRING_SPACING * (NUM_STRINGS - 1) + PADDING_BOTTOM;
 
 export default function Fretboard() {
-  const { scaleType, setScaleType, rootNote } = useFretboardContext();
+  const { scaleType, setScaleType, highlightedChord } = useFretboardContext();
   const { displayKey } = useSongContext();
 
-  const effectiveRoot = rootNote || displayKey?.replace(/m$/, "") || "E";
+  const effectiveRoot = displayKey?.replace(/m$/, "") || "E";
 
   const fretNotes = useMemo(() => {
     const scale = getScale(effectiveRoot, scaleType);
     return getFretboardNotes(scale, undefined, NUM_FRETS);
   }, [effectiveRoot, scaleType]);
 
+  // Bereken welke chromas bij het highlighted chord horen
+  const highlightedChromas = useMemo(() => {
+    if (!highlightedChord) return null;
+    const info = getChordInfo(highlightedChord);
+    if (!info || info.notes.length === 0) return null;
+    return new Set(info.notes.map((n) => Note.chroma(n)).filter((c): c is number => c !== null));
+  }, [highlightedChord]);
+
   const scaleTypes = getScaleTypes();
+
+  function getNoteColor(note: FretNote): string {
+    // Als er een chord is gehighlight, kleur alleen die noten
+    if (highlightedChromas) {
+      const chroma = Note.chroma(note.note);
+      if (chroma !== null && highlightedChromas.has(chroma)) {
+        return note.isRoot ? "#d97706" : "#22c55e"; // amber voor root, groen voor chord tonen
+      }
+      return "#3f3f46"; // Dim de rest
+    }
+    // Standaard: root = amber, rest = blauw
+    return note.isRoot ? "#d97706" : "#3b82f6";
+  }
+
+  function getNoteOpacity(note: FretNote): number {
+    if (highlightedChromas) {
+      const chroma = Note.chroma(note.note);
+      if (chroma !== null && highlightedChromas.has(chroma)) return 1;
+      return 0.2;
+    }
+    return note.isRoot ? 1 : 0.8;
+  }
 
   return (
     <div className="space-y-2">
-      {/* Scale selector */}
+      {/* Scale selector + chord indicator */}
       <div className="flex items-center gap-1 flex-wrap">
         <span className="text-xs text-zinc-500 mr-1">{effectiveRoot}</span>
         {scaleTypes.map((st) => (
@@ -52,6 +83,11 @@ export default function Fretboard() {
             {st.label}
           </button>
         ))}
+        {highlightedChord && (
+          <span className="ml-auto text-xs text-green-400 font-medium">
+            {highlightedChord}
+          </span>
+        )}
       </div>
 
       {/* Fretboard SVG */}
@@ -147,7 +183,6 @@ export default function Fretboard() {
                 stroke="#71717a"
                 strokeWidth={1 + (NUM_STRINGS - 1 - i) * 0.3}
               />
-              {/* String name */}
               <text
                 x={PADDING_LEFT - 14}
                 y={PADDING_TOP + STRING_SPACING * i + 4}
@@ -173,15 +208,19 @@ export default function Fretboard() {
                   cx={cx}
                   cy={cy}
                   r="7"
-                  fill={note.isRoot ? "#d97706" : "#3b82f6"}
-                  opacity={note.isRoot ? 1 : 0.8}
+                  fill={getNoteColor(note)}
+                  opacity={getNoteOpacity(note)}
+                  className="transition-all duration-150"
                 />
                 <text
                   x={cx}
                   y={cy + 3.5}
                   textAnchor="middle"
                   className="text-[8px] fill-white font-bold"
-                  style={{ pointerEvents: "none" }}
+                  style={{
+                    pointerEvents: "none",
+                    opacity: getNoteOpacity(note),
+                  }}
                 >
                   {note.degree}
                 </text>

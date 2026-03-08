@@ -20,7 +20,7 @@ export function useSong() {
       if (cached) {
         ctx.setSong(cached);
         ctx.setLoading(false);
-        fetchMeta(cached);
+        fetchMetaInBackground(artist, title, updateMetadataRef);
         return;
       }
 
@@ -40,7 +40,7 @@ export function useSong() {
 
       ctx.setSong(newSong);
       ctx.setLoading(false);
-      fetchMeta(newSong);
+      fetchMetaInBackground(artist, title, updateMetadataRef);
     },
     [ctx.setSong, ctx.setLoading]
   );
@@ -51,15 +51,36 @@ export function useSong() {
   };
 }
 
-async function fetchMeta(s: Song) {
+async function fetchMetaInBackground(
+  artist: string,
+  title: string,
+  updateRef: React.RefObject<(meta: SongMetadata) => void>
+) {
+  // Spotify metadata
   try {
     const spotifyRes = await fetch(
-      `/api/spotify?artist=${encodeURIComponent(s.artist)}&title=${encodeURIComponent(s.title)}`
+      `/api/spotify?artist=${encodeURIComponent(artist)}&title=${encodeURIComponent(title)}`
     );
     if (spotifyRes.ok) {
-      // Metadata wordt pas gebruikt bij volgende render
+      const meta: SongMetadata = await spotifyRes.json();
+      updateRef.current(meta);
     }
   } catch {
-    // Optioneel
+    // Spotify is optioneel
+  }
+
+  // YouTube video
+  try {
+    const ytRes = await fetch(
+      `/api/youtube?artist=${encodeURIComponent(artist)}&title=${encodeURIComponent(title)}`
+    );
+    if (ytRes.ok) {
+      const data = await ytRes.json();
+      if (data.videoId) {
+        updateRef.current({ youtubeId: data.videoId });
+      }
+    }
+  } catch {
+    // YouTube is optioneel
   }
 }

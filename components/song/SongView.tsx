@@ -2,13 +2,19 @@
 
 import ChordSheet from "./ChordSheet";
 import CapoSuggestion from "./CapoSuggestion";
+import { ChordSheetSkeleton } from "@/components/ui/LoadingSkeleton";
 import { useSongContext } from "@/contexts/SongContext";
 import { useFretboardContext } from "@/contexts/FretboardContext";
 import { getMetaFromChordPro } from "@/lib/chord-parser";
 
 export default function SongView() {
-  const { song, displayChordPro, displayKey, chords } = useSongContext();
+  const { song, displayChordPro, displayKey, chords, loading } =
+    useSongContext();
   const { setHighlightedChord } = useFretboardContext();
+
+  if (loading) {
+    return <ChordSheetSkeleton />;
+  }
 
   if (!song) {
     return (
@@ -42,12 +48,22 @@ export default function SongView() {
     <div className="h-full flex flex-col overflow-hidden">
       {/* Song header */}
       <div className="flex items-center gap-4 px-6 py-4 border-b border-zinc-800/50">
-        {song.albumArt && (
+        {song.albumArt ? (
           <img
             src={song.albumArt}
             alt={`${song.title} album art`}
             className="w-14 h-14 rounded-md shadow-lg"
           />
+        ) : (
+          <div className="w-14 h-14 rounded-md bg-zinc-800/50 flex items-center justify-center">
+            <svg
+              className="w-6 h-6 text-zinc-600"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+            </svg>
+          </div>
         )}
         <div className="min-w-0">
           <h2 className="text-lg font-bold text-zinc-100 truncate">

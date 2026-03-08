@@ -21,6 +21,7 @@ export interface SongMetadata {
   timeSignature?: string;
   albumArt?: string;
   spotifyId?: string;
+  youtubeId?: string;
 }
 
 export interface SearchResult {
