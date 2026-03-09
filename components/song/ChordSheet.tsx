@@ -15,14 +15,14 @@ export default function ChordSheet({ chordpro, onChordClick }: ChordSheetProps) 
     <div className="font-mono text-sm leading-relaxed space-y-0">
       {lines.map((line, i) => {
         if (line.type === "empty") {
-          return <div key={i} className="h-4" />;
+          return <div key={i} className="h-2" />;
         }
 
         if (line.type === "section") {
           return (
             <div
               key={i}
-              className="text-amber-500 font-bold text-xs uppercase tracking-wider mt-6 mb-2"
+              className={`text-amber-500 font-bold text-xs uppercase tracking-wider mb-1 ${i === 0 ? "mt-0" : "mt-4"}`}
             >
               {line.label}
             </div>

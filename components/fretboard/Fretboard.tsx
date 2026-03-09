@@ -13,12 +13,12 @@ const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
 const FRET_MARKERS = [3, 5, 7, 9, 12];
 
 // SVG dimensions
-const PADDING_LEFT = 30;
-const PADDING_RIGHT = 10;
-const PADDING_TOP = 24;
-const PADDING_BOTTOM = 20;
-const FRET_WIDTH = 60;
-const STRING_SPACING = 18;
+const PADDING_LEFT = 28;
+const PADDING_RIGHT = 8;
+const PADDING_TOP = 20;
+const PADDING_BOTTOM = 16;
+const FRET_WIDTH = 36;
+const STRING_SPACING = 16;
 const TOTAL_WIDTH = PADDING_LEFT + FRET_WIDTH * NUM_FRETS + PADDING_RIGHT;
 const TOTAL_HEIGHT = PADDING_TOP + STRING_SPACING * (NUM_STRINGS - 1) + PADDING_BOTTOM;
 
@@ -68,13 +68,13 @@ export default function Fretboard() {
   return (
     <div className="space-y-2">
       {/* Scale selector + chord indicator */}
-      <div className="flex items-center gap-1 flex-wrap">
-        <span className="text-xs text-zinc-500 mr-1">{effectiveRoot}</span>
+      <div className="flex items-center gap-0.5 flex-wrap">
+        <span className="text-[11px] text-zinc-500 mr-0.5">{effectiveRoot}</span>
         {scaleTypes.map((st) => (
           <button
             key={st.value}
             onClick={() => setScaleType(st.value)}
-            className={`px-2 py-0.5 text-xs rounded transition-colors ${
+            className={`px-1.5 py-0.5 text-[11px] rounded transition-colors ${
               scaleType === st.value
                 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                 : "bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 border border-transparent"
@@ -94,8 +94,7 @@ export default function Fretboard() {
       <div className="overflow-x-auto">
         <svg
           viewBox={`0 0 ${TOTAL_WIDTH} ${TOTAL_HEIGHT}`}
-          className="w-full min-w-[600px]"
-          style={{ maxHeight: "160px" }}
+          className="w-full"
         >
           {/* Achtergrond */}
           <rect

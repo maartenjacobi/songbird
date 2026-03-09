@@ -132,7 +132,7 @@ export function getScaleTypes(): { value: ScaleType; label: string }[] {
     { value: "blues", label: "Blues" },
     { value: "major", label: "Majeur" },
     { value: "minor", label: "Mineur" },
-    { value: "dorian", label: "Dorian" },
-    { value: "mixolydian", label: "Mixolydian" },
+    { value: "dorian", label: "Dor." },
+    { value: "mixolydian", label: "Mixo." },
   ];
 }

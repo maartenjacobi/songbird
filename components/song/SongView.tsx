@@ -47,17 +47,17 @@ export default function SongView() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Song header */}
-      <div className="flex items-center gap-4 px-6 py-4 border-b border-zinc-800/50">
+      <div className="flex items-center gap-4 px-6 py-3 border-b border-zinc-800/50">
         {song.albumArt ? (
           <img
             src={song.albumArt}
             alt={`${song.title} album art`}
-            className="w-14 h-14 rounded-md shadow-lg"
+            className="w-12 h-12 rounded-md shadow-lg"
           />
         ) : (
-          <div className="w-14 h-14 rounded-md bg-zinc-800/50 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-md bg-zinc-800/50 flex items-center justify-center shrink-0">
             <svg
-              className="w-6 h-6 text-zinc-600"
+              className="w-5 h-5 text-zinc-600"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
@@ -66,7 +66,7 @@ export default function SongView() {
           </div>
         )}
         <div className="min-w-0">
-          <h2 className="text-lg font-bold text-zinc-100 truncate">
+          <h2 className="text-base font-bold text-zinc-100 truncate">
             {meta.title || song.title}
           </h2>
           <p className="text-sm text-zinc-400 truncate">
@@ -75,23 +75,25 @@ export default function SongView() {
         </div>
       </div>
 
-      {/* Chord sheet */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin">
+      {/* Chord sheet + capo in scrollable area */}
+      <div className="flex-1 overflow-y-auto px-6 py-3">
         <ChordSheet
           chordpro={displayChordPro}
           onChordClick={(chord) => setHighlightedChord(chord)}
         />
-      </div>
 
-      {/* Capo suggestions (inklapbaar) */}
-      <details className="border-t border-zinc-800/50">
-        <summary className="px-6 py-2 text-xs text-zinc-500 cursor-pointer hover:text-zinc-400 transition-colors">
-          Capo suggesties
-        </summary>
-        <div className="px-6 pb-4">
-          <CapoSuggestion chords={chords} songKey={displayKey} />
+        {/* Capo suggestions onderaan de lyrics */}
+        <div className="mt-6 pt-4 border-t border-zinc-800/30">
+          <details>
+            <summary className="text-xs text-zinc-500 cursor-pointer hover:text-zinc-400 transition-colors">
+              Capo suggesties
+            </summary>
+            <div className="mt-2 pb-4">
+              <CapoSuggestion chords={chords} songKey={displayKey} />
+            </div>
+          </details>
         </div>
-      </details>
+      </div>
     </div>
   );
 }
